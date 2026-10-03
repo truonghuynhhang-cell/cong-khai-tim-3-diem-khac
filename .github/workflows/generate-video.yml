@@ -34,7 +34,7 @@ jobs:
       # the effective run number advances from SEQ_BASE_RUN by the same offset.
       SEQ_BASE_RUN: "1"
       # 1-based title catalog position where title progression begins.
-      TITLE_START: "1"
+      TITLE_START: "5"
 
       # Prompts have no private state and no hash/index state. The runner scans
       # extra-prompts.txt from top to bottom and skips exact lines already present
