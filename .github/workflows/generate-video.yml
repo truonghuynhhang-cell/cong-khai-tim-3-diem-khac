@@ -155,6 +155,22 @@ jobs:
       MIN_CHANGED_PIXEL_DELTA: "28.0"
       MIN_STRONG_CHANGE_RATIO: "0.15"
 
+      # ===== DIFFERENCE VISIBILITY =====
+      # All three differences are generated with Diffusers. These thresholds
+      # control how much of the selected object must visibly change while
+      # preventing Diffusers from redesigning the entire object.
+      COLOR_CHANGED_RATIO_MIN: "0.48"
+      COLOR_CHANGED_RATIO_TARGET: "0.58"
+      COLOR_CHANGED_RATIO_MAX: "0.78"
+
+      PATTERN_CHANGED_RATIO_MIN: "0.34"
+      PATTERN_CHANGED_RATIO_TARGET: "0.46"
+      PATTERN_CHANGED_RATIO_MAX: "0.64"
+
+      STRUCTURAL_CHANGED_RATIO_MIN: "0.20"
+      STRUCTURAL_CHANGED_RATIO_TARGET: "0.28"
+      STRUCTURAL_CHANGED_RATIO_MAX: "0.45"
+
       DIFFUSERS_BACKEND: "auto"
       FLUX_FILL_MODEL: "black-forest-labs/FLUX.1-Fill-dev"
       CPU_INPAINT_MODEL: "Lykon/dreamshaper-8-inpainting"
