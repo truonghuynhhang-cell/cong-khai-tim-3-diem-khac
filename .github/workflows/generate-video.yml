@@ -4,6 +4,12 @@ on:
   
   
   workflow_dispatch:
+    inputs:
+      game_count:
+        description: "Number of games to generate"
+        required: false
+        default: "10"
+        type: string
 
 permissions:
   contents: write
@@ -39,7 +45,7 @@ jobs:
       # Prompts have no private state and no hash/index state. The runner scans
       # extra-prompts.txt from top to bottom and skips exact lines already present
       # in public prompt-usage.txt.
-      DF_GAME_COUNT: "10"
+      DF_GAME_COUNT: "${{ inputs.game_count || '10' }}"
       CPU_DREAMSHAPER_STEPS: "7"
       YT_PRIVACY_STATUS: "public"  # private | public | unlisted
 
@@ -155,9 +161,6 @@ jobs:
       MIN_CHANGED_PIXEL_DELTA: "28.0"
       MIN_STRONG_CHANGE_RATIO: "0.15"
 
-      # ===== DIFFERENCE VISIBILITY =====
-      # All three differences are generated with Diffusers. These thresholds
-      # enforce clearly visible but still natural changes inside the object mask.
       COLOR_CHANGED_RATIO_MIN: "0.48"
       COLOR_CHANGED_RATIO_TARGET: "0.58"
       COLOR_CHANGED_RATIO_MAX: "0.78"
@@ -167,6 +170,8 @@ jobs:
       STRUCTURAL_CHANGED_RATIO_MIN: "0.20"
       STRUCTURAL_CHANGED_RATIO_TARGET: "0.28"
       STRUCTURAL_CHANGED_RATIO_MAX: "0.45"
+      MIN_DIFFUSER_SEMANTIC_CONF: "0.055"
+      MAX_GROUPED_TRIPLETS: "96"
 
       DIFFUSERS_BACKEND: "auto"
       FLUX_FILL_MODEL: "black-forest-labs/FLUX.1-Fill-dev"
@@ -246,8 +251,6 @@ jobs:
               exit 1
             fi
           done
-          # No artificial game-count ceiling. DF_GAME_COUNT is controlled by the user.
-          # The requested numbered assets are validated below against the actual count.
           if ! [[ "$CPU_DREAMSHAPER_STEPS" =~ ^(7|8)$ ]]; then
             echo "CPU_DREAMSHAPER_STEPS must be 7 or 8; got: $CPU_DREAMSHAPER_STEPS"
             exit 1
@@ -285,24 +288,14 @@ jobs:
           for name in (
               'requirements.txt', 'mota.txt',
               'assets/fonts/ipaexg.ttf',
+              'images/1.mp4', 'images/2.mp4', 'images/3.mp4', 'images/4.mp4', 'images/5.mp4',
+              'images/6.mp4', 'images/7.mp4', 'images/8.mp4', 'images/9.mp4', 'images/10.mp4',
               'assets/mascot/fox-sheet.webp',
               'assets/tutorial/guide-A.webp', 'assets/tutorial/guide-B.webp',
               'assets/tutorial/differences.json', 'assets/presentation/brain-orbit.webp',
           ):
               if not Path(name).is_file():
                   raise SystemExit('Missing private runtime input or asset: ' + name)
-
-          game_count = int(os.environ['DF_GAME_COUNT'])
-          missing_backgrounds = [
-              f'images/{game}.mp4'
-              for game in range(1, game_count + 1)
-              if not Path(f'images/{game}.mp4').is_file()
-          ]
-          if missing_backgrounds:
-              raise SystemExit(
-                  'Missing numbered game background videos for the requested DF_GAME_COUNT. ' +
-                  'Add these files or lower DF_GAME_COUNT: ' + ', '.join(missing_backgrounds)
-              )
 
           control = Path(os.environ['RUNNER_CONTROL_DIR'])
           for name in ('extra-titles.txt', 'extra-prompts.txt', 'mota.txt',
